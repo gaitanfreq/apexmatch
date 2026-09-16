@@ -8,13 +8,17 @@ function required(name, fallback = undefined) {
   return value;
 }
 
+const hasConnectionString = Boolean(process.env.DATABASE_URL);
+
 module.exports = {
   db: {
-    host: required('PGHOST', 'localhost'),
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.PGSSL !== 'false' && hasConnectionString,
+    host: hasConnectionString ? undefined : required('PGHOST', 'localhost'),
     port: Number(process.env.PGPORT || 5432),
-    database: required('PGDATABASE'),
-    user: required('PGUSER'),
-    password: required('PGPASSWORD'),
+    database: hasConnectionString ? undefined : required('PGDATABASE'),
+    user: hasConnectionString ? undefined : required('PGUSER'),
+    password: hasConnectionString ? undefined : required('PGPASSWORD'),
     maxPoolSize: Number(process.env.PG_MAX_POOL || 10),
   },
   apiFootball: {

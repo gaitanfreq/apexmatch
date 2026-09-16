@@ -2,16 +2,26 @@ const { Pool } = require('pg');
 const config = require('../config');
 const logger = require('../utils/logger');
 
-const pool = new Pool({
-  host: config.db.host,
-  port: config.db.port,
-  database: config.db.database,
-  user: config.db.user,
-  password: config.db.password,
-  max: config.db.maxPoolSize,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
+// Managed Postgres providers (Render, Railway) expose a single DATABASE_URL
+// connection string instead of discrete PG* vars. Prefer it when present.
+const pool = config.db.connectionString
+  ? new Pool({
+      connectionString: config.db.connectionString,
+      ssl: config.db.ssl ? { rejectUnauthorized: false } : undefined,
+      max: config.db.maxPoolSize,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    })
+  : new Pool({
+      host: config.db.host,
+      port: config.db.port,
+      database: config.db.database,
+      user: config.db.user,
+      password: config.db.password,
+      max: config.db.maxPoolSize,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    });
 
 pool.on('error', (err) => {
   // Errores en clientes idle del pool: no deben tirar el proceso.

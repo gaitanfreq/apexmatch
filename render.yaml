@@ -1,0 +1,58 @@
+databases:
+  - name: apexmatch-db
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: apexmatch-api
+    runtime: node
+    plan: free
+    rootDir: football-analytics-backend
+    buildCommand: npm install
+    startCommand: npm run api
+    preDeployCommand: npm run migrate && npm run seed:admin
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: apexmatch-db
+          property: connectionString
+      - key: API_PORT
+        value: "4000"
+      - key: CORS_ORIGIN
+        value: https://apexmatch-pi.vercel.app
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: DEFAULT_BANKROLL
+        value: "1000"
+      - key: KELLY_MULTIPLIER
+        value: "0.25"
+      - key: MIN_EDGE
+        value: "0.05"
+      - key: MIN_PARLAY_CUMULATIVE_PROBABILITY
+        value: "0.85"
+      - key: MATCH_DATA_SOURCE
+        value: simulator
+      - key: API_FOOTBALL_BASE_URL
+        value: https://v3.football.api-sports.io
+      - key: API_FOOTBALL_KEY
+        value: not_configured_using_simulator
+      - key: TRACKED_LEAGUE_IDS
+        value: "39,140,135,78,61"
+      - key: CURRENT_SEASON_YEAR
+        value: "2025"
+      - key: LOG_LEVEL
+        value: info
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_VIP_PRICE_ID
+        sync: false
