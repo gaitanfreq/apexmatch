@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #090a0f;
+  color: #ffffff;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(0, 255, 135, 0.06), transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(255, 42, 133, 0.06), transparent 45%);
+}
+
+::selection {
+  background: rgba(0, 255, 135, 0.25);
+}
+
+.card {
+  @apply rounded-2xl border border-[#232b3e] bg-[#141923]/70 backdrop-blur-md shadow-glow;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+}
+
+.stat-value {
+  @apply font-mono text-2xl font-semibold tracking-tight;
+}
+
+.glow-text-green {
+  filter: drop-shadow(0 0 10px rgba(0, 255, 135, 0.4));
+}
+
+.glow-text-magenta {
+  filter: drop-shadow(0 0 10px rgba(255, 42, 133, 0.4));
+}
