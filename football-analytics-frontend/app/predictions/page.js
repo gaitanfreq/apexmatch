@@ -7,6 +7,7 @@ import MatchCard from '@/components/MatchCard';
 import LeagueFilter from '@/components/LeagueFilter';
 import StatusFilter, { STATUS_FILTER_OPTIONS } from '@/components/StatusFilter';
 import ApiErrorState from '@/components/ApiErrorState';
+import MethodologyNote from '@/components/MethodologyNote';
 import { useI18n } from '@/components/i18n/LanguageProvider';
 
 /** Live Predictions: partidos programados/en vivo/finalizados, filtrables por liga y estado. */
@@ -62,6 +63,8 @@ export default function PredictionsPage() {
         <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{t('predictions.title')}</h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted">{t('predictions.subtitle')}</p>
       </section>
+
+      <MethodologyNote />
 
       <section className="space-y-3">
         <LeagueFilter leagues={leagues} selectedLeagueId={selectedLeagueId} onSelect={setSelectedLeagueId} />

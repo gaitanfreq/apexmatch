@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import Paywall from '@/components/Paywall';
 import ValueBetCard from '@/components/ValueBetCard';
 import ApiErrorState from '@/components/ApiErrorState';
+import MethodologyNote from '@/components/MethodologyNote';
 import { effectiveRole } from '@/components/RoleBadge';
 import { useI18n } from '@/components/i18n/LanguageProvider';
 
@@ -59,6 +60,8 @@ export default function VipPage() {
         <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{t('vip.title')}</h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted">{t('vip.subtitle')}</p>
       </section>
+
+      <MethodologyNote />
 
       <Paywall>
         <VipContent />

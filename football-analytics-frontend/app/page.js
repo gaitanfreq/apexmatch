@@ -6,6 +6,7 @@ import LowRiskHeroCard from '@/components/LowRiskHeroCard';
 import PackageCard from '@/components/PackageCard';
 import FixturesTable from '@/components/FixturesTable';
 import ApiErrorState from '@/components/ApiErrorState';
+import MethodologyNote from '@/components/MethodologyNote';
 import T from '@/components/i18n/T';
 
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,8 @@ export default async function HomePage() {
           <T k="home.subtitle" />
         </p>
       </section>
+
+      <MethodologyNote />
 
       <section>
         {statsResult.error ? (
