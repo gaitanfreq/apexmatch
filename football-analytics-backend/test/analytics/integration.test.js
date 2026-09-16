@@ -38,7 +38,10 @@ describe('Integración Fase 2: motor de probabilidades y gestión de riesgo', ()
       { market: 'Match Winner', selection: 'Away', oddsDecimal: 5.5, bookmaker: 'BookA' },
     ];
 
-    const valueBets = findValueBets(prediction.markets, marketOdds, { minEdge: 0.05 });
+    // maxEdge alto a propósito: este test usa una cuota deliberadamente generosa
+    // (edge ~28%) para validar el pipeline completo, no el tope de maxEdge en sí
+    // (ver valueBettingEngine.test.js para ese caso, y config.api.maxEdge=0.20 por defecto).
+    const valueBets = findValueBets(prediction.markets, marketOdds, { minEdge: 0.05, maxEdge: 1 });
     assert.ok(valueBets.length >= 1);
 
     const bestBet = valueBets[0];

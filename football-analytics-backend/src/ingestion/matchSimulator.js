@@ -24,7 +24,9 @@ const { query } = require('../db/pool');
 const catalogRepo = require('../repositories/catalogRepository');
 const matchRepo = require('../repositories/matchRepository');
 const oddsRepo = require('../repositories/oddsRepository');
+const analyticsRepo = require('../repositories/analyticsRepository');
 const { predictMatch } = require('../analytics/poissonModel');
+const { estimateExpectedGoals } = require('../analytics/xgEstimator');
 const { runJob } = require('./runJob');
 const config = require('../config');
 const logger = require('../utils/logger');
@@ -38,6 +40,42 @@ const BOOKMAKER_NAME = 'SimBook';
 const BOOKMAKER_PROVIDER_ID = 2;
 const SIM_TEAM_ID_MIN = 700100;
 const SIM_TEAM_ID_MAX = 700200;
+const FALLBACK_LEAGUE_AVG_HOME_GOALS = 1.5;
+const FALLBACK_LEAGUE_AVG_AWAY_GOALS = 1.15;
+
+/**
+ * xG "justo" para generar cuotas: el mismo estimador (xgEstimator + historial
+ * real de match_team_stats) que usa predictFixture.js al calcular value bets.
+ * Generar las cuotas con una fuente de probabilidad distinta a la que luego
+ * las evalúa (antes: ratings fijos de club) producía edges irreales de
+ * cientos de puntos porcentuales — dos modelos independientes discrepando,
+ * no una ineficiencia de mercado real. Alineando la fuente, el edge que
+ * queda es solo el de `applyMarketInefficiency` (ver más abajo), realista.
+ */
+async function estimateFairXG({ leagueId, seasonId, homeTeamId, awayTeamId }) {
+  const [homeTeamHomeMatches, awayTeamAwayMatches, leagueAverages] = await Promise.all([
+    analyticsRepo.getRecentHomeMatches(homeTeamId, { limit: 10 }),
+    analyticsRepo.getRecentAwayMatches(awayTeamId, { limit: 10 }),
+    analyticsRepo.getLeagueAverages(leagueId, seasonId),
+  ]);
+
+  const { homeXG, awayXG } = estimateExpectedGoals({
+    homeTeamHomeMatches,
+    awayTeamAwayMatches,
+    leagueAvgHomeGoals: leagueAverages.avgHomeGoals ?? FALLBACK_LEAGUE_AVG_HOME_GOALS,
+    leagueAvgAwayGoals: leagueAverages.avgAwayGoals ?? FALLBACK_LEAGUE_AVG_AWAY_GOALS,
+  });
+  return { homeXG, awayXG };
+}
+
+// Ineficiencia de mercado realista: cuotas entre 8% por debajo y 10% por
+// encima de la cuota justa (antes: 15%, pero combinado con la discrepancia
+// de modelos de más arriba daba edges de +100%+). Tras el filtro MIN_EDGE
+// (5%), la mayoría de los value bets detectados quedan en el rango 5-10%.
+function applyMarketInefficiency(fairOdds) {
+  const inefficiency = 0.92 + Math.random() * 0.18; // 0.92–1.10
+  return Math.max(1.01, Number((fairOdds * inefficiency).toFixed(2)));
+}
 
 /** Crea/actualiza las 4 ligas, sus temporadas y el roster de clubes. Idempotente (upserts). */
 async function ensureCatalog() {
@@ -80,8 +118,14 @@ async function ensureCatalog() {
   return { leagueIds, seasonIds, teamIds };
 }
 
-/** Genera un snapshot de cuotas (4 mercados) a partir del xG del partido, con una ineficiencia de mercado aleatoria. */
-async function generateOddsForFixture(matchId, homeXG, awayXG) {
+/**
+ * Genera un snapshot de cuotas (4 mercados) para un partido, con una
+ * ineficiencia de mercado realista. `fixtureCtx` (leagueId/seasonId/homeTeamId/
+ * awayTeamId) se usa para calcular el mismo xG "justo" que luego usará
+ * predictFixture.js al evaluar value bets — ver `estimateFairXG` más arriba.
+ */
+async function generateOddsForFixture(matchId, fixtureCtx) {
+  const { homeXG, awayXG } = await estimateFairXG(fixtureCtx);
   const { markets } = predictMatch({ homeXG, awayXG });
   const bookmakerId = await oddsRepo.upsertBookmaker(BOOKMAKER_PROVIDER_ID, BOOKMAKER_NAME);
 
@@ -125,8 +169,7 @@ async function generateOddsForFixture(matchId, homeXG, awayXG) {
     for (const [selection, probability, handicap] of marketDef.entries) {
       if (!(probability > 0)) continue;
       const fairOdds = 1 / probability;
-      const marketInefficiency = 0.85 + Math.random() * 0.3; // 0.85–1.15 -> a veces genera edge real
-      const oddsDecimal = Math.max(1.01, Number((fairOdds * marketInefficiency).toFixed(2)));
+      const oddsDecimal = applyMarketInefficiency(fairOdds);
       await oddsRepo.insertOddsSnapshot({ matchId, bookmakerId, marketId, selection, handicap, oddsDecimal });
     }
   }
@@ -147,7 +190,6 @@ async function ensureUpcomingFixtures(leagueKey, leagueId, seasonId, teamIds) {
   let created = 0;
   for (let i = 0; i < missing; i += 1) {
     const [homeName, awayName] = [...roster].sort(() => Math.random() - 0.5);
-    const { homeXG, awayXG } = computeMatchXG(homeName, awayName);
 
     const providerFixtureId = 700000000 + leagueId * 1000000 + Math.floor(Math.random() * 900000);
     const kickoffAt = new Date(Date.now() + (2 + Math.random() * 46) * 3600 * 1000);
@@ -170,7 +212,7 @@ async function ensureUpcomingFixtures(leagueKey, leagueId, seasonId, teamIds) {
       awayGoalsHt: null,
     });
 
-    await generateOddsForFixture(matchId, homeXG, awayXG);
+    await generateOddsForFixture(matchId, { leagueId, seasonId, homeTeamId: teamIds[homeName], awayTeamId: teamIds[awayName] });
     created += 1;
   }
   return created;
@@ -179,10 +221,9 @@ async function ensureUpcomingFixtures(leagueKey, leagueId, seasonId, teamIds) {
 /** Nuevo snapshot de cuotas para los partidos del simulador ya programados — así el mercado se mueve entre corridas. */
 async function refreshOddsForScheduledFixtures(leagueId) {
   const { rows } = await query(
-    `SELECT m.id, ht.name AS "homeName", at.name AS "awayName"
+    `SELECT m.id, m.season_id AS "seasonId", m.home_team_id AS "homeTeamId", m.away_team_id AS "awayTeamId"
      FROM matches m
      JOIN teams ht ON ht.id = m.home_team_id
-     JOIN teams at ON at.id = m.away_team_id
      WHERE m.league_id = $1 AND m.status = 'scheduled'
        AND m.kickoff_at BETWEEN now() AND now() + interval '48 hours'
        AND ht.provider_team_id BETWEEN $2 AND $3`,
@@ -192,8 +233,7 @@ async function refreshOddsForScheduledFixtures(leagueId) {
   let refreshed = 0;
   for (const m of rows) {
     try {
-      const { homeXG, awayXG } = computeMatchXG(m.homeName, m.awayName);
-      await generateOddsForFixture(m.id, homeXG, awayXG);
+      await generateOddsForFixture(m.id, { leagueId, seasonId: m.seasonId, homeTeamId: m.homeTeamId, awayTeamId: m.awayTeamId });
       refreshed += 1;
     } catch (err) {
       logger.warn(`No se pudieron refrescar las cuotas del partido ${m.id}: ${err.message}`);
@@ -205,7 +245,11 @@ async function refreshOddsForScheduledFixtures(leagueId) {
 /** Genera match_team_stats (xG, posesión, tiros, etc.) para un partido recién finalizado. */
 async function insertFinishedMatchStats(match) {
   const buildStats = (goals) => ({
-    xg: Number(Math.max(0.3, goals + (Math.random() - 0.5)).toFixed(2)),
+    // Ruido moderado (antes ±0.5): con menos ruido, la fuerza ataque/defensa que
+    // xgEstimator deriva del historial es más estable entre la generación de la
+    // cuota y su evaluación posterior — menos "edges" espurios por historial
+    // que cambió de un momento a otro (ver estimateFairXG en matchSimulator.js).
+    xg: Number(Math.max(0.3, goals + (Math.random() - 0.5) * 0.4).toFixed(2)),
     xga: null,
     possessionPct: Number((40 + Math.random() * 20).toFixed(1)),
     dangerousAttacks: 25 + Math.round(Math.random() * 30),

@@ -38,7 +38,7 @@ async function predictFixtureCached(fixture) {
     };
   }
 
-  const result = await predictFixture(fixture, { minEdge: config.api.minEdge });
+  const result = await predictFixture(fixture, { minEdge: config.api.minEdge, maxEdge: config.api.maxEdge });
 
   predictionsCacheRepo
     .upsert(fixture.id, {

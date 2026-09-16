@@ -48,6 +48,12 @@ module.exports = {
     defaultBankroll: Number(process.env.DEFAULT_BANKROLL || 1000),
     kellyMultiplier: Number(process.env.KELLY_MULTIPLIER || 0.25),
     minEdge: Number(process.env.MIN_EDGE || 0.05),
+    // Tope superior de edge a mostrar/recomendar. Un edge sostenido por encima de esto
+    // en un mercado real es prácticamente inexistente — casi siempre delata un error
+    // de cálculo (o, en el simulador, ruido acumulado entre la generación de la cuota
+    // y su evaluación) antes que una oportunidad real. Descartarlo evita mostrarle al
+    // usuario "value bets" con edges de cientos de puntos porcentuales que no son creíbles.
+    maxEdge: Number(process.env.MAX_EDGE || 0.2),
     minParlayCumulativeProbability: Number(process.env.MIN_PARLAY_CUMULATIVE_PROBABILITY || 0.85),
   },
   admin: {

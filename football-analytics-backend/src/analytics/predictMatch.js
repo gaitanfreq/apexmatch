@@ -21,8 +21,9 @@ const FALLBACK_LEAGUE_AVG_AWAY_GOALS = 1.15;
  * @param {object} [options]
  * @param {number} [options.recentMatchesLimit=10]
  * @param {number} [options.minEdge=0.05]
+ * @param {number} [options.maxEdge=0.20]
  */
-async function predictFixture(fixture, { recentMatchesLimit = 10, minEdge = 0.05 } = {}) {
+async function predictFixture(fixture, { recentMatchesLimit = 10, minEdge = 0.05, maxEdge = 0.2 } = {}) {
   const [homeTeamHomeMatches, awayTeamAwayMatches, leagueAverages] = await Promise.all([
     analyticsRepo.getRecentHomeMatches(fixture.homeTeamId, { limit: recentMatchesLimit }),
     analyticsRepo.getRecentAwayMatches(fixture.awayTeamId, { limit: recentMatchesLimit }),
@@ -49,7 +50,7 @@ async function predictFixture(fixture, { recentMatchesLimit = 10, minEdge = 0.05
   const prediction = runPoissonModel({ homeXG: xgEstimate.homeXG, awayXG: xgEstimate.awayXG });
 
   const marketOdds = await analyticsRepo.getLatestOddsForMatch(fixture.id);
-  const valueBets = findValueBets(prediction.markets, marketOdds, { minEdge });
+  const valueBets = findValueBets(prediction.markets, marketOdds, { minEdge, maxEdge });
 
   return { fixture, xgEstimate, prediction, valueBets };
 }

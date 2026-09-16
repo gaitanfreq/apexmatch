@@ -86,8 +86,11 @@ function resolveModelProbability(marketProbabilities, marketName, selection, han
  * @param {Array}  marketOdds - [{ market, selection, handicap, bookmaker, oddsDecimal }, ...]
  * @param {object} [options]
  * @param {number} [options.minEdge=0.05] - umbral mínimo de edge (5%)
+ * @param {number} [options.maxEdge=0.20] - tope superior de edge (20%): por encima de
+ *   esto, en la práctica siempre es ruido/error de cálculo, no una oportunidad real
+ *   (ver config.api.maxEdge) — se descarta en vez de mostrarse como value bet.
  */
-function findValueBets(marketProbabilities, marketOdds, { minEdge = 0.05 } = {}) {
+function findValueBets(marketProbabilities, marketOdds, { minEdge = 0.05, maxEdge = 0.2 } = {}) {
   const results = [];
 
   for (const quote of marketOdds) {
@@ -101,7 +104,7 @@ function findValueBets(marketProbabilities, marketOdds, { minEdge = 0.05 } = {})
     if (probability == null || probability <= 0) continue;
 
     const edge = calculateEdge(probability, quote.oddsDecimal);
-    if (edge >= minEdge) {
+    if (edge >= minEdge && edge <= maxEdge) {
       results.push({
         ...quote,
         ourProbability: probability,

@@ -103,4 +103,11 @@ describe('valueBettingEngine', () => {
     const valueBets = findValueBets(sampleMarkets, marketOdds, { minEdge: 0.05 });
     assert.deepEqual(valueBets, []);
   });
+
+  test('findValueBets: descarta edges por encima de maxEdge (probable error de cálculo, no value bet real)', () => {
+    // edge = 0.55*3.0-1 = 0.65 -> muy por encima del maxEdge por defecto (0.20)
+    const marketOdds = [{ market: 'Match Winner', selection: 'Home', oddsDecimal: 3.0, bookmaker: 'BookA' }];
+    const valueBets = findValueBets(sampleMarkets, marketOdds, { minEdge: 0.05, maxEdge: 0.2 });
+    assert.deepEqual(valueBets, []);
+  });
 });
