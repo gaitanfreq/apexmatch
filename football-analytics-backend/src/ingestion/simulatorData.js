@@ -16,6 +16,10 @@ const LEAGUES = {
   PREMIER_LEAGUE: { providerLeagueId: 39, name: 'Premier League', countryName: 'Inglaterra' },
   LA_LIGA: { providerLeagueId: 140, name: 'La Liga', countryName: 'España' },
   SERIE_A: { providerLeagueId: 135, name: 'Serie A', countryName: 'Italia' },
+  BUNDESLIGA: { providerLeagueId: 78, name: 'Bundesliga', countryName: 'Alemania' },
+  LIGUE_1: { providerLeagueId: 61, name: 'Ligue 1', countryName: 'Francia' },
+  PRIMERA_A: { providerLeagueId: 239, name: 'Categoría Primera A', countryName: 'Colombia' },
+  MLS: { providerLeagueId: 253, name: 'Major League Soccer', countryName: 'Estados Unidos' },
 };
 
 // attack/defense: fuerza relativa a un club promedio (1.0). defense > 1 = concede más de lo normal.
@@ -40,6 +44,26 @@ const CLUB_RATINGS = {
   Napoli: { providerTeamId: 700118, attack: 1.7, defense: 0.9 },
   'AS Roma': { providerTeamId: 700119, attack: 1.5, defense: 1.0 },
   Atalanta: { providerTeamId: 700120, attack: 1.6, defense: 1.05 },
+  'Borussia Dortmund': { providerTeamId: 700121, attack: 1.85, defense: 0.95 },
+  'RB Leipzig': { providerTeamId: 700122, attack: 1.8, defense: 0.9 },
+  'Bayer Leverkusen': { providerTeamId: 700123, attack: 1.9, defense: 0.85 },
+  'Eintracht Frankfurt': { providerTeamId: 700124, attack: 1.4, defense: 1.05 },
+  Marseille: { providerTeamId: 700125, attack: 1.55, defense: 1.0 },
+  Monaco: { providerTeamId: 700126, attack: 1.6, defense: 0.95 },
+  Lyon: { providerTeamId: 700127, attack: 1.45, defense: 1.05 },
+  Lille: { providerTeamId: 700128, attack: 1.4, defense: 0.95 },
+  'Atlético Nacional': { providerTeamId: 700129, attack: 1.5, defense: 0.95 },
+  Millonarios: { providerTeamId: 700130, attack: 1.45, defense: 1.0 },
+  'América de Cali': { providerTeamId: 700131, attack: 1.4, defense: 1.0 },
+  'Deportivo Cali': { providerTeamId: 700132, attack: 1.3, defense: 1.05 },
+  'Junior de Barranquilla': { providerTeamId: 700133, attack: 1.35, defense: 1.05 },
+  'Independiente Santa Fe': { providerTeamId: 700134, attack: 1.3, defense: 1.1 },
+  'LA Galaxy': { providerTeamId: 700135, attack: 1.35, defense: 1.05 },
+  'LAFC': { providerTeamId: 700136, attack: 1.5, defense: 0.95 },
+  'Inter Miami CF': { providerTeamId: 700137, attack: 1.6, defense: 1.0 },
+  'Seattle Sounders FC': { providerTeamId: 700138, attack: 1.4, defense: 1.0 },
+  'Atlanta United FC': { providerTeamId: 700139, attack: 1.35, defense: 1.05 },
+  'New York City FC': { providerTeamId: 700140, attack: 1.4, defense: 1.0 },
 };
 
 const LEAGUE_ROSTERS = {
@@ -47,6 +71,10 @@ const LEAGUE_ROSTERS = {
   PREMIER_LEAGUE: ['Manchester City', 'Liverpool', 'Arsenal', 'Chelsea', 'Manchester United', 'Tottenham Hotspur'],
   LA_LIGA: ['Real Madrid', 'Barcelona', 'Atlético Madrid', 'Sevilla', 'Real Sociedad', 'Athletic Club'],
   SERIE_A: ['Inter Milan', 'AC Milan', 'Juventus', 'Napoli', 'AS Roma', 'Atalanta'],
+  BUNDESLIGA: ['Bayern Munich', 'Borussia Dortmund', 'RB Leipzig', 'Bayer Leverkusen', 'Eintracht Frankfurt'],
+  LIGUE_1: ['Paris Saint-Germain', 'Marseille', 'Monaco', 'Lyon', 'Lille'],
+  PRIMERA_A: ['Atlético Nacional', 'Millonarios', 'América de Cali', 'Deportivo Cali', 'Junior de Barranquilla', 'Independiente Santa Fe'],
+  MLS: ['LA Galaxy', 'LAFC', 'Inter Miami CF', 'Seattle Sounders FC', 'Atlanta United FC', 'New York City FC'],
 };
 
 const HOME_ADVANTAGE = 1.1;

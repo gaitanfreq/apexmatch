@@ -116,3 +116,12 @@ export function TrashIcon(props) {
     </svg>
   );
 }
+
+export function SearchIcon(props) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20 L16.5 16.5" />
+    </svg>
+  );
+}

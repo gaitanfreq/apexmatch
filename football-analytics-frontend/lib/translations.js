@@ -229,6 +229,9 @@ const translations = {
     },
     leagueFilter: {
       allLeagues: 'Todas las ligas',
+      searchPlaceholder: 'Buscar por liga o país...',
+      noMatches: 'No hay ligas que coincidan con la búsqueda.',
+      otherCountry: 'Otros',
     },
     matchStatus: {
       scheduled: 'Programado',
@@ -479,6 +482,9 @@ const translations = {
     },
     leagueFilter: {
       allLeagues: 'All leagues',
+      searchPlaceholder: 'Search by league or country...',
+      noMatches: 'No leagues match your search.',
+      otherCountry: 'Other',
     },
     matchStatus: {
       scheduled: 'Scheduled',
