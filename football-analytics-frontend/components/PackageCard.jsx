@@ -1,27 +1,26 @@
-import RiskBadge from './RiskBadge';
+'use client';
 
-const MARKET_LABELS = {
-  'double chance': 'Doble Oportunidad',
-  'goals over/under': 'Más/Menos Goles',
-  'both teams score': 'Ambos Anotan',
+import RiskBadge from './RiskBadge';
+import { useI18n } from './i18n/LanguageProvider';
+import { formatKickoff } from '@/lib/formatDate';
+
+const MARKET_KEYS = {
+  'double chance': 'packageCard.doubleChance',
+  'goals over/under': 'packageCard.goalsOverUnder',
+  'both teams score': 'packageCard.bothTeamsScore',
 };
 
-function marketLabel(market) {
+function marketLabel(market, t) {
   const normalized = (market || '').toLowerCase();
-  for (const [key, label] of Object.entries(MARKET_LABELS)) {
-    if (normalized.includes(key)) return label;
+  for (const [key, tKey] of Object.entries(MARKET_KEYS)) {
+    if (normalized.includes(key)) return t(tKey);
   }
   return market;
 }
 
-function formatKickoff(value) {
-  if (!value) return '';
-  return new Date(value).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
-
-function matchLabel(leg) {
+function matchLabel(leg, t) {
   if (leg.homeTeamName && leg.awayTeamName) return `${leg.homeTeamName} vs. ${leg.awayTeamName}`;
-  return `Partido #${leg.matchId}`;
+  return t('match.match', { id: leg.matchId });
 }
 
 /**
@@ -29,7 +28,8 @@ function matchLabel(leg) {
  * nivel de riesgo, cuotas consolidadas, probabilidad calculada, stake de
  * Kelly recomendado y la justificación algorítmica de cada leg.
  */
-export default function PackageCard({ pkg, title = 'Paquete Combinado' }) {
+export default function PackageCard({ pkg, title }) {
+  const { t, locale } = useI18n();
   if (!pkg) return null;
 
   const probabilityPct = (pkg.cumulativeProbability * 100).toFixed(1);
@@ -39,23 +39,23 @@ export default function PackageCard({ pkg, title = 'Paquete Combinado' }) {
     <div className="card p-5">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h4 className="text-sm font-semibold text-white">{title}</h4>
-          <p className="text-xs text-ink-muted">{pkg.legs.length} selecciones combinadas</p>
+          <h4 className="text-sm font-semibold text-white">{title ?? t('packageCard.defaultTitle')}</h4>
+          <p className="text-xs text-ink-muted">{t('packageCard.selectionsCount', { count: pkg.legs.length })}</p>
         </div>
         <RiskBadge level={pkg.riskLevel || 'low'} />
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-3 text-center">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-ink-muted">Cuota Consolidada</p>
+          <p className="text-[11px] uppercase tracking-wide text-ink-muted">{t('packageCard.consolidatedOdds')}</p>
           <p className="font-mono text-lg font-semibold text-white">{pkg.combinedOdds.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-ink-muted">Prob. Calculada</p>
+          <p className="text-[11px] uppercase tracking-wide text-ink-muted">{t('packageCard.calculatedProb')}</p>
           <p className="font-mono text-lg font-semibold text-neon-green">{probabilityPct}%</p>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-ink-muted">Stake Kelly</p>
+          <p className="text-[11px] uppercase tracking-wide text-ink-muted">{t('packageCard.kellyStake')}</p>
           <p className="font-mono text-lg font-semibold text-electric-blue">
             {kelly?.recommendedFraction ? `${(kelly.recommendedFraction * 100).toFixed(1)}%` : '—'}
           </p>
@@ -69,25 +69,22 @@ export default function PackageCard({ pkg, title = 'Paquete Combinado' }) {
             className="flex items-center justify-between rounded-lg bg-black/20 px-3 py-2 text-xs"
           >
             <div>
-              <p className="font-medium text-slate-200">{matchLabel(leg)}</p>
+              <p className="font-medium text-slate-200">{matchLabel(leg, t)}</p>
               <p className="text-slate-500">
-                {marketLabel(leg.market)} · {leg.selection} · {formatKickoff(leg.kickoffAt)}
+                {marketLabel(leg.market, t)} · {leg.selection} · {formatKickoff(leg.kickoffAt, locale)}
               </p>
             </div>
             <div className="text-right">
               <p className="font-mono text-slate-200">{leg.odds.toFixed(2)}</p>
-              <p className="font-mono text-[11px] text-slate-500">{(leg.probability * 100).toFixed(0)}% prob.</p>
+              <p className="font-mono text-[11px] text-slate-500">{(leg.probability * 100).toFixed(0)}% {t('packageCard.probLabel')}</p>
             </div>
           </li>
         ))}
       </ul>
 
       <p className="mt-4 rounded-lg border border-[#232b3e] bg-black/20 p-3 text-xs leading-relaxed text-ink-muted">
-        <span className="font-semibold text-slate-300">Justificación algorítmica: </span>
-        Cada selección proviene de un mercado de alta probabilidad (Doble Oportunidad, Más de 1.5 goles o
-        Ambos Anotan) modelado con Poisson Bivariada a partir del xG reciente de cada equipo. La probabilidad
-        acumulada del paquete ({probabilityPct}%) asume independencia entre partidos y supera el umbral de
-        riesgo bajo (85%).
+        <span className="font-semibold text-slate-300">{t('packageCard.justificationTitle')} </span>
+        {t('packageCard.justificationBody', { pct: probabilityPct })}
       </p>
     </div>
   );

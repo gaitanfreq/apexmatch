@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { api } from '@/lib/api';
+import { useI18n } from './i18n/LanguageProvider';
 
 /** Configuración personal del Bankroll Tracker: bankroll inicial + unidad de stake (monto fijo o %). */
 export default function BankrollSettingsCard({ settings, token, onSaved }) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const [initialBankroll, setInitialBankroll] = useState(settings.initialBankroll);
   const [stakeUnitType, setStakeUnitType] = useState(settings.stakeUnitType);
@@ -36,11 +38,11 @@ export default function BankrollSettingsCard({ settings, token, onSaved }) {
       <div className="card flex flex-wrap items-center justify-between gap-4 p-5">
         <div className="flex flex-wrap gap-8 text-sm">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-ink-muted">Bankroll Inicial</p>
+            <p className="text-[11px] uppercase tracking-wide text-ink-muted">{t('bankrollSettings.initialBankroll')}</p>
             <p className="font-mono text-lg text-white">${Number(settings.initialBankroll).toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-ink-muted">Unidad de Stake</p>
+            <p className="text-[11px] uppercase tracking-wide text-ink-muted">{t('bankrollSettings.stakeUnit')}</p>
             <p className="font-mono text-lg text-white">
               {settings.stakeUnitType === 'fixed' ? `$${settings.stakeUnitValue}` : `${settings.stakeUnitValue}%`}
             </p>
@@ -50,7 +52,7 @@ export default function BankrollSettingsCard({ settings, token, onSaved }) {
           onClick={() => setEditing(true)}
           className="rounded-lg border border-[#232b3e] bg-black/20 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/5"
         >
-          Configurar
+          {t('bankrollSettings.configure')}
         </button>
       </div>
     );
@@ -58,10 +60,10 @@ export default function BankrollSettingsCard({ settings, token, onSaved }) {
 
   return (
     <form onSubmit={handleSave} className="card space-y-3 p-5">
-      <h3 className="text-sm font-semibold text-white">Configurar Bankroll</h3>
+      <h3 className="text-sm font-semibold text-white">{t('bankrollSettings.configureTitle')}</h3>
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="block text-xs text-ink-muted">
-          Bankroll Inicial ($)
+          {t('bankrollSettings.initialBankrollLabel')}
           <input
             type="number"
             min="1"
@@ -73,18 +75,18 @@ export default function BankrollSettingsCard({ settings, token, onSaved }) {
           />
         </label>
         <label className="block text-xs text-ink-muted">
-          Tipo de Unidad
+          {t('bankrollSettings.unitType')}
           <select
             value={stakeUnitType}
             onChange={(e) => setStakeUnitType(e.target.value)}
             className="mt-1 w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white focus:border-neon-green focus:outline-none"
           >
-            <option value="fixed">Monto fijo ($)</option>
-            <option value="percentage">% del bankroll</option>
+            <option value="fixed">{t('bankrollSettings.fixedAmount')}</option>
+            <option value="percentage">{t('bankrollSettings.percentage')}</option>
           </select>
         </label>
         <label className="block text-xs text-ink-muted">
-          Valor de la Unidad
+          {t('bankrollSettings.unitValue')}
           <input
             type="number"
             min="0.01"
@@ -105,14 +107,14 @@ export default function BankrollSettingsCard({ settings, token, onSaved }) {
           disabled={busy}
           className="rounded-lg bg-neon-green px-4 py-2 text-sm font-semibold text-[#0b0e14] shadow-glow-green hover:opacity-90 disabled:opacity-50"
         >
-          {busy ? 'Guardando...' : 'Guardar'}
+          {busy ? t('bankrollSettings.saving') : t('bankrollSettings.save')}
         </button>
         <button
           type="button"
           onClick={() => setEditing(false)}
           className="rounded-lg border border-[#232b3e] bg-black/20 px-4 py-2 text-sm text-slate-300 hover:bg-white/5"
         >
-          Cancelar
+          {t('bankrollSettings.cancel')}
         </button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 'use client';
 
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { useI18n } from './i18n/LanguageProvider';
 
 function StatTile({ label, value, accent = 'text-white', hint, children }) {
   return (
@@ -40,36 +41,37 @@ function MiniSparkline({ data }) {
  */
 export default function PerformanceStats({
   stats,
-  recommendationsLabel = 'Recomendaciones',
-  recommendationsHint = 'paquetes y value bets',
+  recommendationsLabel,
+  recommendationsHint,
   bankrollHint,
 }) {
+  const { t } = useI18n();
   if (!stats) return null;
 
   const roiAccent = stats.roiPct >= 0 ? 'text-neon-green glow-text-green' : 'text-neon-magenta glow-text-magenta';
-  const resolvedBankrollHint = bankrollHint ?? `simulado, base $${(stats.startingBankroll ?? 1000).toLocaleString()}`;
+  const resolvedBankrollHint = bankrollHint ?? t('perf.simulatedBase', { amount: (stats.startingBankroll ?? 1000).toLocaleString() });
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <StatTile
-        label="Live ROI"
+        label={t('perf.liveRoi')}
         value={`${stats.roiPct >= 0 ? '+' : ''}${stats.roiPct.toFixed(1)}%`}
         accent={roiAccent}
-        hint={`sobre $${stats.totalStaked.toFixed(0)} apostados`}
+        hint={t('perf.staked', { amount: stats.totalStaked.toFixed(0) })}
       />
       <StatTile
-        label="Win Rate (Low Risk)"
+        label={t('perf.winRate')}
         value={`${stats.winRatePct.toFixed(1)}%`}
         accent="text-white"
         hint={`${stats.wins}W - ${stats.losses}L`}
       />
       <StatTile
-        label={recommendationsLabel}
+        label={recommendationsLabel ?? t('perf.recommendations')}
         value={stats.totalRecommendations}
         accent="text-electric-blue"
-        hint={recommendationsHint}
+        hint={recommendationsHint ?? t('perf.packagesAndValueBets')}
       />
-      <StatTile label="Bankroll" value={`$${stats.currentBankroll.toFixed(0)}`} accent="text-white" hint={resolvedBankrollHint}>
+      <StatTile label={t('perf.bankroll')} value={`$${stats.currentBankroll.toFixed(0)}`} accent="text-white" hint={resolvedBankrollHint}>
         <MiniSparkline data={stats.bankrollCurve} />
       </StatTile>
     </div>

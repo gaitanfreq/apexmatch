@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/authOptions';
 import { api } from '@/lib/api';
 import AdminDashboard from '@/components/AdminDashboard';
 import ApiErrorState from '@/components/ApiErrorState';
+import T from '@/components/i18n/T';
 
 /**
  * Panel de Administración — exclusivo para role='admin'.
@@ -31,11 +32,10 @@ export default async function AdminPage() {
   return (
     <div className="space-y-6">
       <section className="pt-4">
-        <span className="badge bg-neon-magenta/15 text-neon-magenta glow-text-magenta">★ Admin</span>
-        <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Panel de Administración</h1>
+        <span className="badge bg-neon-magenta/15 text-neon-magenta glow-text-magenta"><T k="admin.badge" /></span>
+        <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl"><T k="admin.title" /></h1>
         <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-          Cuentas registradas en ApexMatch, su rol y su plan de suscripción actual. Cambia el nivel de
-          acceso de cualquier usuario directamente desde la tabla.
+          <T k="admin.subtitle" />
         </p>
       </section>
 

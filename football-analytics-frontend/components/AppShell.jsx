@@ -5,10 +5,12 @@ import Image from 'next/image';
 import Sidebar from './Sidebar';
 import ApexMatchLogo from './ui/ApexMatchLogo';
 import { MenuIcon } from './ui/icons';
+import { useI18n } from './i18n/LanguageProvider';
 
 /** Shell de la app: sidebar fija en desktop, drawer deslizante en mobile. */
 export default function AppShell({ children }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="min-h-screen">
@@ -19,7 +21,7 @@ export default function AppShell({ children }) {
           <ApexMatchLogo variant="full" size="md" showTagline={false} />
           <button
             onClick={() => setOpen(true)}
-            aria-label="Abrir menú"
+            aria-label={t('nav.openMenu')}
             className="rounded-md p-1.5 text-ink-muted hover:bg-white/5"
           >
             <MenuIcon />
@@ -36,10 +38,7 @@ export default function AppShell({ children }) {
             height={400}
             className="mb-4 h-6 w-auto rounded opacity-70"
           />
-          <p className="text-xs text-slate-500">
-            ApexMatch no garantiza resultados. Las apuestas deportivas implican riesgo de pérdida de capital.
-            Juega con responsabilidad.
-          </p>
+          <p className="text-xs text-slate-500">{t('footer.disclaimer')}</p>
         </footer>
       </div>
     </div>

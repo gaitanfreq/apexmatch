@@ -5,10 +5,12 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ApexMatchLogo from '@/components/ui/ApexMatchLogo';
+import { useI18n } from '@/components/i18n/LanguageProvider';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useI18n();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const [email, setEmail] = useState('');
@@ -24,7 +26,7 @@ function LoginForm() {
     const result = await signIn('credentials', { email, password, redirect: false });
 
     if (result?.error) {
-      setError('Email o contraseña incorrectos.');
+      setError(t('auth.wrongCredentials'));
       setBusy(false);
       return;
     }
@@ -40,16 +42,14 @@ function LoginForm() {
           <ApexMatchLogo variant="full" size="md" showTagline={false} />
         </div>
 
-        <h1 className="mb-1 text-center text-lg font-semibold text-white">Iniciar Sesión</h1>
-        <p className="mb-6 text-center text-sm text-ink-muted">
-          Accede a tu cuenta de ApexMatch.
-        </p>
+        <h1 className="mb-1 text-center text-lg font-semibold text-white">{t('auth.loginTitle')}</h1>
+        <p className="mb-6 text-center text-sm text-ink-muted">{t('auth.loginSubtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             required
-            placeholder="tu@email.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -57,7 +57,7 @@ function LoginForm() {
           <input
             type="password"
             required
-            placeholder="Contraseña"
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -70,14 +70,14 @@ function LoginForm() {
             disabled={busy}
             className="w-full rounded-lg bg-neon-green px-3 py-2 text-sm font-semibold text-[#0b0e14] shadow-glow-green transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {busy ? 'Ingresando...' : 'Iniciar Sesión'}
+            {busy ? t('auth.loggingIn') : t('auth.loginButton')}
           </button>
         </form>
 
         <p className="mt-5 text-center text-xs text-ink-muted">
-          ¿No tienes cuenta?{' '}
+          {t('auth.noAccount')}{' '}
           <Link href="/register" className="text-electric-blue hover:underline">
-            Regístrate
+            {t('auth.registerLink')}
           </Link>
         </p>
       </div>

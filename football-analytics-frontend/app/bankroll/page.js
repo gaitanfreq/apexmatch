@@ -10,10 +10,12 @@ import RegisterBetModal from '@/components/RegisterBetModal';
 import BetsHistoryTable from '@/components/BetsHistoryTable';
 import ApiErrorState from '@/components/ApiErrorState';
 import { PlusIcon } from '@/components/ui/icons';
+import { useI18n } from '@/components/i18n/LanguageProvider';
 
 /** Bankroll Tracker personal: bankroll inicial + stake configurables, ROI/curva calculados en vivo, registro de apuestas. */
 export default function BankrollPage() {
   const { data: session, status } = useSession();
+  const { t } = useI18n();
   const token = session?.backendToken;
 
   const [stats, setStats] = useState(null);
@@ -47,7 +49,7 @@ export default function BankrollPage() {
   }
 
   if (status === 'loading' || (!stats && !error)) {
-    return <p className="pt-8 text-sm text-ink-muted">Cargando tu bankroll...</p>;
+    return <p className="pt-8 text-sm text-ink-muted">{t('bankroll.loading')}</p>;
   }
 
   const defaultStake = stats
@@ -60,18 +62,15 @@ export default function BankrollPage() {
     <div className="space-y-6">
       <section className="flex flex-wrap items-start justify-between gap-4 pt-4">
         <div>
-          <span className="badge bg-neon-green/15 text-neon-green">Bankroll Tracker</span>
-          <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Tu Bankroll</h1>
-          <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-            ROI, % de aciertos y la curva de crecimiento se recalculan automáticamente a partir de las
-            apuestas que registres abajo, sobre tu bankroll inicial configurado.
-          </p>
+          <span className="badge bg-neon-green/15 text-neon-green">{t('bankroll.badge')}</span>
+          <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{t('bankroll.title')}</h1>
+          <p className="mt-2 max-w-2xl text-sm text-ink-muted">{t('bankroll.subtitle')}</p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-1.5 rounded-lg bg-neon-green px-4 py-2 text-sm font-semibold text-[#0b0e14] shadow-glow-green transition-opacity hover:opacity-90"
         >
-          <PlusIcon width={16} height={16} /> Registrar Apuesta
+          <PlusIcon width={16} height={16} /> {t('bankroll.registerBet')}
         </button>
       </section>
 
@@ -82,8 +81,8 @@ export default function BankrollPage() {
           <div className="space-y-4">
             <PerformanceStats
               stats={stats}
-              recommendationsLabel="Apuestas Registradas"
-              recommendationsHint="tu historial personal"
+              recommendationsLabel={t('bankroll.registeredBets')}
+              recommendationsHint={t('bankroll.personalHistory')}
               bankrollHint={`base $${stats.settings.initialBankroll.toLocaleString()}`}
             />
             <BankrollChart data={stats.bankrollCurve} />
@@ -93,7 +92,7 @@ export default function BankrollPage() {
 
           <div>
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-muted">
-              Historial de Apuestas
+              {t('bankroll.historyTitle')}
             </h2>
             <BetsHistoryTable bets={bets} onDelete={handleDeleteBet} />
           </div>

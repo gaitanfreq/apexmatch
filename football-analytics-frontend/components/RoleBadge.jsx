@@ -1,4 +1,7 @@
+'use client';
+
 import clsx from 'clsx';
+import { useI18n } from './i18n/LanguageProvider';
 
 const STYLES = {
   ADMIN: 'bg-neon-magenta/15 text-neon-magenta glow-text-magenta',
@@ -14,9 +17,10 @@ export function effectiveRole(user) {
 }
 
 export default function RoleBadge({ role, className }) {
+  const { t } = useI18n();
   return (
     <span className={clsx('badge', STYLES[role] ?? STYLES.FREE, className)}>
-      {role === 'ADMIN' ? '★ ADMIN' : role}
+      {role === 'ADMIN' ? t('roleBadge.admin') : role}
     </span>
   );
 }

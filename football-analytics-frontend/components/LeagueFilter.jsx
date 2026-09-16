@@ -1,9 +1,11 @@
 'use client';
 
 import clsx from 'clsx';
+import { useI18n } from './i18n/LanguageProvider';
 
 /** Chips de selección de liga — "Todas" + una por cada liga trackeada con partidos. */
 export default function LeagueFilter({ leagues, selectedLeagueId, onSelect }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-wrap gap-2">
       <button
@@ -15,7 +17,7 @@ export default function LeagueFilter({ leagues, selectedLeagueId, onSelect }) {
             : 'border-[#232b3e] bg-black/20 text-ink-muted hover:text-white'
         )}
       >
-        Todas las ligas
+        {t('leagueFilter.allLeagues')}
       </button>
       {leagues.map((league) => (
         <button

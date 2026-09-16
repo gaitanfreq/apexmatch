@@ -1,3 +1,7 @@
+'use client';
+
+import { useI18n } from './i18n/LanguageProvider';
+
 function MetricTile({ label, value, accent = 'text-white' }) {
   return (
     <div className="card p-4">
@@ -9,13 +13,14 @@ function MetricTile({ label, value, accent = 'text-white' }) {
 
 /** Métricas rápidas del panel de administración: total de usuarios, VIP activos, apuestas en el sistema. */
 export default function AdminMetrics({ stats }) {
+  const { t } = useI18n();
   if (!stats) return null;
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      <MetricTile label="Total de Usuarios" value={stats.totalUsers} accent="text-white" />
-      <MetricTile label="Usuarios VIP Activos" value={stats.activeVipUsers} accent="text-neon-green glow-text-green" />
-      <MetricTile label="Total de Apuestas Registradas" value={stats.totalBets} accent="text-electric-blue" />
+      <MetricTile label={t('admin.totalUsers')} value={stats.totalUsers} accent="text-white" />
+      <MetricTile label={t('admin.activeVip')} value={stats.activeVipUsers} accent="text-neon-green glow-text-green" />
+      <MetricTile label={t('admin.totalBets')} value={stats.totalBets} accent="text-electric-blue" />
     </div>
   );
 }

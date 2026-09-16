@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { api } from '@/lib/api';
 import { CloseIcon } from './ui/icons';
+import { useI18n } from './i18n/LanguageProvider';
 
 const RESULT_OPTIONS = [
-  { value: 'won', label: 'Ganada', tone: 'text-neon-green border-neon-green bg-neon-green/15' },
-  { value: 'lost', label: 'Perdida', tone: 'text-neon-magenta border-neon-magenta bg-neon-magenta/15' },
-  { value: 'void', label: 'Anulada', tone: 'text-electric-blue border-electric-blue bg-electric-blue/15' },
+  { value: 'won', tKey: 'registerBet.won', tone: 'text-neon-green border-neon-green bg-neon-green/15' },
+  { value: 'lost', tKey: 'registerBet.lost', tone: 'text-neon-magenta border-neon-magenta bg-neon-magenta/15' },
+  { value: 'void', tKey: 'registerBet.void', tone: 'text-electric-blue border-electric-blue bg-electric-blue/15' },
 ];
 
 /** Modal rápido para registrar una apuesta ya resuelta (Partido, Cuota, Stake, Resultado). */
 export default function RegisterBetModal({ open, onClose, token, defaultStake, onRegistered }) {
+  const { t } = useI18n();
   const [matchLabel, setMatchLabel] = useState('');
   const [market, setMarket] = useState('');
   const [oddsDecimal, setOddsDecimal] = useState('');
@@ -61,7 +63,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
     >
       <div className="card w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-white">Registrar Apuesta / Resultado</h3>
+          <h3 className="text-sm font-semibold text-white">{t('registerBet.title')}</h3>
           <button onClick={onClose} className="text-ink-muted hover:text-white">
             <CloseIcon width={18} height={18} />
           </button>
@@ -71,14 +73,14 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
           <input
             type="text"
             required
-            placeholder="Partido (ej. Real Madrid vs Barcelona)"
+            placeholder={t('registerBet.matchPlaceholder')}
             value={matchLabel}
             onChange={(e) => setMatchLabel(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
           />
           <input
             type="text"
-            placeholder="Mercado (opcional, ej. Over 2.5)"
+            placeholder={t('registerBet.marketPlaceholder')}
             value={market}
             onChange={(e) => setMarket(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -90,7 +92,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
               required
               min="1.01"
               step="0.01"
-              placeholder="Cuota"
+              placeholder={t('registerBet.odds')}
               value={oddsDecimal}
               onChange={(e) => setOddsDecimal(e.target.value)}
               className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -100,7 +102,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
               required
               min="0.01"
               step="0.01"
-              placeholder="Stake ($)"
+              placeholder={t('registerBet.stake')}
               value={stakeAmount}
               onChange={(e) => setStakeAmount(e.target.value)}
               className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -108,7 +110,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
           </div>
 
           <div>
-            <p className="mb-1.5 text-xs text-ink-muted">Resultado</p>
+            <p className="mb-1.5 text-xs text-ink-muted">{t('registerBet.result')}</p>
             <div className="grid grid-cols-3 gap-2">
               {RESULT_OPTIONS.map((opt) => (
                 <button
@@ -120,7 +122,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
                     result === opt.value ? opt.tone : 'border-[#232b3e] bg-black/20 text-ink-muted hover:text-white'
                   )}
                 >
-                  {opt.label}
+                  {t(opt.tKey)}
                 </button>
               ))}
             </div>
@@ -133,7 +135,7 @@ export default function RegisterBetModal({ open, onClose, token, defaultStake, o
             disabled={busy}
             className="w-full rounded-lg bg-neon-green px-3 py-2 text-sm font-semibold text-[#0b0e14] shadow-glow-green transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {busy ? 'Guardando...' : 'Registrar Apuesta'}
+            {busy ? t('registerBet.saving') : t('registerBet.save')}
           </button>
         </form>
       </div>

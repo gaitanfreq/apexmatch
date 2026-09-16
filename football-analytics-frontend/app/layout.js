@@ -1,6 +1,7 @@
 import './globals.css';
 import AppShell from '@/components/AppShell';
 import AuthSessionProvider from '@/components/AuthSessionProvider';
+import LanguageProvider from '@/components/i18n/LanguageProvider';
 
 export const metadata = {
   title: 'ApexMatch — Quantitative Football Analytics',
@@ -11,9 +12,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className="dark">
       <body className="min-h-screen font-sans antialiased">
-        <AuthSessionProvider>
-          <AppShell>{children}</AppShell>
-        </AuthSessionProvider>
+        <LanguageProvider>
+          <AuthSessionProvider>
+            <AppShell>{children}</AppShell>
+          </AuthSessionProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

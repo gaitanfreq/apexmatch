@@ -7,10 +7,12 @@ import MatchCard from '@/components/MatchCard';
 import LeagueFilter from '@/components/LeagueFilter';
 import StatusFilter, { STATUS_FILTER_OPTIONS } from '@/components/StatusFilter';
 import ApiErrorState from '@/components/ApiErrorState';
+import { useI18n } from '@/components/i18n/LanguageProvider';
 
 /** Live Predictions: partidos programados/en vivo/finalizados, filtrables por liga y estado. */
 export default function PredictionsPage() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const token = session?.backendToken;
 
   const [leagues, setLeagues] = useState([]);
@@ -56,12 +58,9 @@ export default function PredictionsPage() {
   return (
     <div className="space-y-6">
       <section className="pt-4">
-        <span className="badge bg-electric-blue/15 text-electric-blue">Live Predictions</span>
-        <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Ligas, Competiciones y Partidos</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-          Goles Esperados (xG) y probabilidades 1X2 calculadas con el modelo de Poisson Bivariada, filtrables
-          por liga y por estado del partido.
-        </p>
+        <span className="badge bg-electric-blue/15 text-electric-blue">{t('predictions.badge')}</span>
+        <h1 className="mt-3 text-2xl font-bold text-white sm:text-3xl">{t('predictions.title')}</h1>
+        <p className="mt-2 max-w-2xl text-sm text-ink-muted">{t('predictions.subtitle')}</p>
       </section>
 
       <section className="space-y-3">
@@ -72,9 +71,7 @@ export default function PredictionsPage() {
       {error && <ApiErrorState message={error} />}
 
       {!error && predictions && predictions.length === 0 && (
-        <div className="card p-6 text-center text-sm text-ink-muted">
-          No hay partidos que coincidan con este filtro en este momento.
-        </div>
+        <div className="card p-6 text-center text-sm text-ink-muted">{t('predictions.noMatches')}</div>
       )}
 
       {!error && predictions && predictions.length > 0 && (

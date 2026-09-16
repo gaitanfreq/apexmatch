@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import RoleBadge, { effectiveRole } from './RoleBadge';
 import { api } from '@/lib/api';
+import { useI18n } from './i18n/LanguageProvider';
+import { formatLongDate } from '@/lib/formatDate';
 
 const TIER_OPTIONS = [
   { value: 'free', label: 'FREE' },
@@ -11,13 +13,10 @@ const TIER_OPTIONS = [
   { value: 'admin', label: 'ADMIN' },
 ];
 
-function formatDate(value) {
-  return new Date(value).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
 /** Tabla interactiva de usuarios: cambia el nivel de acceso (FREE/VIP/ADMIN) desde un select por fila. */
 export default function AdminUsersTable({ initialUsers, onStatsChange }) {
   const { data: session } = useSession();
+  const { t, locale } = useI18n();
   const token = session?.backendToken;
   const currentUserEmail = session?.user?.email;
 
@@ -44,11 +43,11 @@ export default function AdminUsersTable({ initialUsers, onStatsChange }) {
       <table className="w-full min-w-[640px] border-collapse text-sm">
         <thead>
           <tr className="border-b border-[#232b3e] text-left text-[11px] uppercase tracking-wide text-ink-muted">
-            <th className="px-4 py-3 font-medium">Email</th>
-            <th className="px-4 py-3 font-medium">Rol / Plan</th>
-            <th className="px-4 py-3 font-medium">Estado suscripción</th>
-            <th className="px-4 py-3 font-medium">Registrado</th>
-            <th className="px-4 py-3 font-medium">Cambiar acceso</th>
+            <th className="px-4 py-3 font-medium">{t('admin.email')}</th>
+            <th className="px-4 py-3 font-medium">{t('admin.rolePlan')}</th>
+            <th className="px-4 py-3 font-medium">{t('admin.subStatus')}</th>
+            <th className="px-4 py-3 font-medium">{t('admin.registered')}</th>
+            <th className="px-4 py-3 font-medium">{t('admin.changeAccess')}</th>
           </tr>
         </thead>
         <tbody>
@@ -60,16 +59,16 @@ export default function AdminUsersTable({ initialUsers, onStatsChange }) {
               <tr key={u.id} className="border-b border-[#232b3e]/60 last:border-0 hover:bg-white/[0.02]">
                 <td className="px-4 py-3 text-white">
                   {u.email}
-                  {isSelf && <span className="ml-1.5 text-xs text-ink-muted">(Tú)</span>}
+                  {isSelf && <span className="ml-1.5 text-xs text-ink-muted">({t('admin.you')})</span>}
                 </td>
                 <td className="px-4 py-3">
                   <RoleBadge role={role} />
                 </td>
                 <td className="px-4 py-3 text-ink-muted">{u.subscriptionStatus}</td>
-                <td className="px-4 py-3 text-ink-muted">{formatDate(u.createdAt)}</td>
+                <td className="px-4 py-3 text-ink-muted">{formatLongDate(u.createdAt, locale)}</td>
                 <td className="px-4 py-3">
                   {isSelf ? (
-                    <span className="text-xs text-ink-muted">No editable</span>
+                    <span className="text-xs text-ink-muted">{t('admin.notEditable')}</span>
                   ) : (
                     <div className="flex items-center gap-2">
                       <select
@@ -84,7 +83,7 @@ export default function AdminUsersTable({ initialUsers, onStatsChange }) {
                           </option>
                         ))}
                       </select>
-                      {savingId === u.id && <span className="text-xs text-ink-muted">Guardando...</span>}
+                      {savingId === u.id && <span className="text-xs text-ink-muted">{t('admin.saving')}</span>}
                     </div>
                   )}
                   {errorById[u.id] && <p className="mt-1 text-xs text-neon-magenta">{errorById[u.id]}</p>}

@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ApexMatchLogo from '@/components/ui/ApexMatchLogo';
 import { api } from '@/lib/api';
+import { useI18n } from '@/components/i18n/LanguageProvider';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     try {
       await api.register(email, password);
       const result = await signIn('credentials', { email, password, redirect: false });
-      if (result?.error) throw new Error('La cuenta se creó pero no se pudo iniciar sesión automáticamente.');
+      if (result?.error) throw new Error(t('auth.autoLoginFail'));
       router.push('/');
       router.refresh();
     } catch (err) {
@@ -38,16 +40,14 @@ export default function RegisterPage() {
           <ApexMatchLogo variant="full" size="md" showTagline={false} />
         </div>
 
-        <h1 className="mb-1 text-center text-lg font-semibold text-white">Crear Cuenta</h1>
-        <p className="mb-6 text-center text-sm text-ink-muted">
-          Empieza con el plan Gratuito — actualiza a VIP cuando quieras.
-        </p>
+        <h1 className="mb-1 text-center text-lg font-semibold text-white">{t('auth.registerTitle')}</h1>
+        <p className="mb-6 text-center text-sm text-ink-muted">{t('auth.registerSubtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             required
-            placeholder="tu@email.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -56,7 +56,7 @@ export default function RegisterPage() {
             type="password"
             required
             minLength={8}
-            placeholder="Contraseña (mínimo 8 caracteres)"
+            placeholder={t('auth.passwordHint')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-lg border border-[#232b3e] bg-black/30 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-neon-green focus:outline-none"
@@ -69,14 +69,14 @@ export default function RegisterPage() {
             disabled={busy}
             className="w-full rounded-lg bg-neon-green px-3 py-2 text-sm font-semibold text-[#0b0e14] shadow-glow-green transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {busy ? 'Creando cuenta...' : 'Crear Cuenta'}
+            {busy ? t('auth.registering') : t('auth.registerButton')}
           </button>
         </form>
 
         <p className="mt-5 text-center text-xs text-ink-muted">
-          ¿Ya tienes cuenta?{' '}
+          {t('auth.hasAccount')}{' '}
           <Link href="/login" className="text-electric-blue hover:underline">
-            Inicia sesión
+            {t('auth.loginLink')}
           </Link>
         </p>
       </div>
