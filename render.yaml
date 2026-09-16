@@ -10,8 +10,7 @@ services:
     plan: free
     rootDir: football-analytics-backend
     buildCommand: npm install
-    startCommand: npm run api
-    preDeployCommand: npm run migrate && npm run seed:admin
+    startCommand: npm run migrate && (npm run seed:admin || true) && npm run api
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
