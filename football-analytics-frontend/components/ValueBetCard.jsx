@@ -2,6 +2,7 @@
 
 import { useI18n } from './i18n/LanguageProvider';
 import { formatKickoff } from '@/lib/formatDate';
+import SimulatedBadge from './SimulatedBadge';
 
 function matchLabel(bet, t) {
   if (bet.homeTeamName && bet.awayTeamName) return `${bet.homeTeamName} vs. ${bet.awayTeamName}`;
@@ -19,7 +20,10 @@ export default function ValueBetCard({ bet }) {
     <div className="card p-5">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs text-ink-muted">{formatKickoff(bet.kickoffAt, locale)} · {matchLabel(bet, t)}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs text-ink-muted">{formatKickoff(bet.kickoffAt, locale)} · {matchLabel(bet, t)}</p>
+            <SimulatedBadge isSimulated={bet.isSimulated} />
+          </div>
           <h4 className="text-sm font-semibold text-white">
             {bet.market} <span className="text-neon-magenta">— {bet.selection}</span>
           </h4>

@@ -2,6 +2,7 @@
 
 import { useI18n } from './i18n/LanguageProvider';
 import { formatKickoff } from '@/lib/formatDate';
+import SimulatedBadge from './SimulatedBadge';
 
 function matchLabel(leg, t) {
   if (leg.homeTeamName && leg.awayTeamName) return `${leg.homeTeamName} vs. ${leg.awayTeamName}`;
@@ -37,7 +38,10 @@ export default function LowRiskHeroCard({ pkg }) {
         {pkg.legs.map((leg, i) => (
           <div key={i} className="flex items-center justify-between text-sm">
             <div>
-              <p className="font-medium text-white">{matchLabel(leg, t)}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="font-medium text-white">{matchLabel(leg, t)}</p>
+                <SimulatedBadge isSimulated={leg.isSimulated} />
+              </div>
               <p className="text-xs text-ink-muted">
                 {leg.market} · {leg.selection} · {formatKickoff(leg.kickoffAt, locale)}
               </p>

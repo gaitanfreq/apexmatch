@@ -1,6 +1,7 @@
 'use client';
 
 import RiskBadge from './RiskBadge';
+import SimulatedBadge from './SimulatedBadge';
 import { useI18n } from './i18n/LanguageProvider';
 import { formatKickoff } from '@/lib/formatDate';
 
@@ -42,7 +43,10 @@ export default function PackageCard({ pkg, title }) {
           <h4 className="text-sm font-semibold text-white">{title ?? t('packageCard.defaultTitle')}</h4>
           <p className="text-xs text-ink-muted">{t('packageCard.selectionsCount', { count: pkg.legs.length })}</p>
         </div>
-        <RiskBadge level={pkg.riskLevel || 'low'} />
+        <div className="flex items-center gap-1.5">
+          <SimulatedBadge isSimulated={pkg.legs[0]?.isSimulated} />
+          <RiskBadge level={pkg.riskLevel || 'low'} />
+        </div>
       </div>
 
       <div className="mb-4 grid grid-cols-3 gap-3 text-center">

@@ -107,10 +107,22 @@ function samplePoisson(lambda) {
   return k - 1;
 }
 
+// Rango de provider_team_id reservado para clubes creados por el simulador
+// (ver ensureCatalog en matchSimulator.js). Se usa también en
+// analyticsRepository.js para marcar `isSimulated` en los fixtures que
+// devuelve la API — así el frontend puede mostrar un aviso "Simulado" por
+// tarjeta en vez de depender solo de una nota global, y el día que se
+// conecten fixtures reales (equipos con provider_team_id fuera de este
+// rango) van a distinguirse automáticamente sin tocar el frontend.
+const SIM_TEAM_ID_MIN = 700100;
+const SIM_TEAM_ID_MAX = 700200;
+
 module.exports = {
   LEAGUES,
   CLUB_RATINGS,
   LEAGUE_ROSTERS,
   computeMatchXG,
   samplePoisson,
+  SIM_TEAM_ID_MIN,
+  SIM_TEAM_ID_MAX,
 };

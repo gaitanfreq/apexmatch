@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import MatchStatusBadge from './MatchStatusBadge';
+import SimulatedBadge from './SimulatedBadge';
 import { useI18n } from './i18n/LanguageProvider';
 import { formatKickoff } from '@/lib/formatDate';
 
@@ -53,7 +54,10 @@ export default function MatchCard({ prediction }) {
     <div className="card p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <span className="badge bg-white/5 text-ink-muted">{fixture.leagueName}</span>
-        <MatchStatusBadge status={fixture.status} />
+        <div className="flex items-center gap-1.5">
+          <SimulatedBadge isSimulated={fixture.isSimulated} />
+          <MatchStatusBadge status={fixture.status} />
+        </div>
       </div>
 
       <div className="mb-3 flex items-center justify-between">

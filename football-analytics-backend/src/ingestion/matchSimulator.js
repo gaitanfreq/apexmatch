@@ -30,7 +30,15 @@ const { estimateExpectedGoals } = require('../analytics/xgEstimator');
 const { runJob } = require('./runJob');
 const config = require('../config');
 const logger = require('../utils/logger');
-const { LEAGUES, CLUB_RATINGS, LEAGUE_ROSTERS, computeMatchXG, samplePoisson } = require('./simulatorData');
+const {
+  LEAGUES,
+  CLUB_RATINGS,
+  LEAGUE_ROSTERS,
+  computeMatchXG,
+  samplePoisson,
+  SIM_TEAM_ID_MIN,
+  SIM_TEAM_ID_MAX,
+} = require('./simulatorData');
 
 const MIN_UPCOMING_PER_LEAGUE = 3;
 const LIVE_DURATION_MINUTES = 105;
@@ -38,8 +46,6 @@ const BOOKMAKER_NAME = 'SimBook';
 // provider_bookmaker_id tiene su propia constraint UNIQUE (independiente de `name`) —
 // 2 evita chocar con el bookmaker "DemoBook" (id=1) de scripts/seed-demo-data.js.
 const BOOKMAKER_PROVIDER_ID = 2;
-const SIM_TEAM_ID_MIN = 700100;
-const SIM_TEAM_ID_MAX = 700200;
 const FALLBACK_LEAGUE_AVG_HOME_GOALS = 1.5;
 const FALLBACK_LEAGUE_AVG_AWAY_GOALS = 1.15;
 

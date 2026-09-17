@@ -34,6 +34,7 @@ router.get(
         homeTeamName: fixture.homeTeamName,
         awayTeamName: fixture.awayTeamName,
         kickoffAt: fixture.kickoffAt,
+        isSimulated: fixture.isSimulated,
       },
       expectedGoals: { home: xgEstimate.homeXG, away: xgEstimate.awayXG },
       markets: prediction.markets,
@@ -81,6 +82,7 @@ router.get(
           statusDetail: fixture.statusDetail,
           homeGoals: fixture.homeGoals,
           awayGoals: fixture.awayGoals,
+          isSimulated: fixture.isSimulated,
         },
       };
 

@@ -1,4 +1,5 @@
 const { query } = require('../db/pool');
+const { SIM_TEAM_ID_MIN, SIM_TEAM_ID_MAX } = require('../ingestion/simulatorData');
 
 /**
  * NOTA: el driver `pg` devuelve columnas NUMERIC/DECIMAL como strings (para no
@@ -77,13 +78,19 @@ async function getLatestOddsForMatch(matchId) {
   return rows.map((r) => ({ ...r, matchId }));
 }
 
-/** Fixtures próximos dentro de una ventana de horas, para alimentar el generador de parlays. */
+/**
+ * Fixtures próximos dentro de una ventana de horas, para alimentar el generador de parlays.
+ * `isSimulated`: true si el equipo local fue creado por el simulador (provider_team_id en
+ * SIM_TEAM_ID_MIN..MAX, ver simulatorData.js) — permite avisar en el frontend que ese
+ * partido/cuota es de demostración, no un fixture ni una casa de apuestas real.
+ */
 async function getUpcomingFixtures({ withinHours = 72, leagueIds = [] } = {}) {
   const { rows } = await query(
     `SELECT m.id, m.provider_fixture_id AS "providerFixtureId", m.league_id AS "leagueId",
             m.season_id AS "seasonId", m.home_team_id AS "homeTeamId", m.away_team_id AS "awayTeamId",
             ht.name AS "homeTeamName", at.name AS "awayTeamName",
-            m.kickoff_at AS "kickoffAt"
+            m.kickoff_at AS "kickoffAt",
+            (ht.provider_team_id BETWEEN $3 AND $4) AS "isSimulated"
      FROM matches m
      JOIN teams ht ON ht.id = m.home_team_id
      JOIN teams at ON at.id = m.away_team_id
@@ -91,7 +98,7 @@ async function getUpcomingFixtures({ withinHours = 72, leagueIds = [] } = {}) {
        AND m.kickoff_at BETWEEN now() AND now() + ($1 || ' hours')::interval
        AND ($2::int[] IS NULL OR m.league_id = ANY($2::int[]))
      ORDER BY m.kickoff_at ASC`,
-    [withinHours, leagueIds.length ? leagueIds : null]
+    [withinHours, leagueIds.length ? leagueIds : null, SIM_TEAM_ID_MIN, SIM_TEAM_ID_MAX]
   );
   return rows;
 }
@@ -131,7 +138,8 @@ async function getFixtures({ withinHours = 48, leagueIds = [], statuses = ['sche
             m.home_team_id AS "homeTeamId", m.away_team_id AS "awayTeamId",
             ht.name AS "homeTeamName", at.name AS "awayTeamName",
             m.kickoff_at AS "kickoffAt", m.status, m.status_detail AS "statusDetail",
-            m.home_goals AS "homeGoals", m.away_goals AS "awayGoals"
+            m.home_goals AS "homeGoals", m.away_goals AS "awayGoals",
+            (ht.provider_team_id BETWEEN $4 AND $5) AS "isSimulated"
      FROM matches m
      JOIN teams ht ON ht.id = m.home_team_id
      JOIN teams at ON at.id = m.away_team_id
@@ -140,7 +148,7 @@ async function getFixtures({ withinHours = 48, leagueIds = [], statuses = ['sche
        AND m.kickoff_at BETWEEN now() - ($2 || ' hours')::interval AND now() + ($2 || ' hours')::interval
        AND ($3::int[] IS NULL OR m.league_id = ANY($3::int[]))
      ORDER BY m.kickoff_at ASC`,
-    [statuses, withinHours, leagueIds.length ? leagueIds : null]
+    [statuses, withinHours, leagueIds.length ? leagueIds : null, SIM_TEAM_ID_MIN, SIM_TEAM_ID_MAX]
   );
   return rows;
 }

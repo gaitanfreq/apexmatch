@@ -2,6 +2,7 @@
 
 import { useI18n } from './i18n/LanguageProvider';
 import { formatKickoff } from '@/lib/formatDate';
+import SimulatedBadge from './SimulatedBadge';
 
 function OutcomeBadge({ label, probability, tone }) {
   const toneClass = {
@@ -50,7 +51,10 @@ export default function FixturesTable({ predictions = [], limit }) {
             return (
               <tr key={p.fixture.id} className="border-b border-[#232b3e]/60 last:border-0 hover:bg-white/[0.02]">
                 <td className="px-4 py-3">
-                  <p className="font-medium text-white">{homeName} vs. {awayName}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-white">{homeName} vs. {awayName}</p>
+                    <SimulatedBadge isSimulated={p.fixture.isSimulated} />
+                  </div>
                   <p className="text-xs text-ink-muted">{formatKickoff(p.fixture.kickoffAt, locale)}</p>
                 </td>
                 <td className="px-4 py-3">

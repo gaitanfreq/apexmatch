@@ -100,6 +100,7 @@ async function buildParlayLegCandidates({ withinHours = 72, leagueIds = [] } = {
         homeTeamName: fixture.homeTeamName,
         awayTeamName: fixture.awayTeamName,
         kickoffAt: fixture.kickoffAt,
+        isSimulated: fixture.isSimulated,
         market: quote.market,
         selection: quote.selection,
         bookmaker: quote.bookmaker,
@@ -152,6 +153,7 @@ async function getValueBets({ withinHours = 72, leagueIds = [], minEdge = config
       homeTeamName: p.fixture.homeTeamName,
       awayTeamName: p.fixture.awayTeamName,
       kickoffAt: p.fixture.kickoffAt,
+      isSimulated: p.fixture.isSimulated,
     })))
     .filter((vb) => vb.edge >= minEdge)
     .sort((a, b) => b.edge - a.edge)
