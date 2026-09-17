@@ -52,6 +52,12 @@ async function getMatchIdByProviderId(providerFixtureId) {
   return rows[0]?.id ?? null;
 }
 
+/** true si ya se sincronizaron estadísticas avanzadas para este partido (evita re-pedirlas a la API). */
+async function hasMatchTeamStats(matchId) {
+  const { rows } = await query('SELECT 1 FROM match_team_stats WHERE match_id = $1 LIMIT 1', [matchId]);
+  return rows.length > 0;
+}
+
 async function upsertMatchTeamStats(matchId, teamId, isHome, stats) {
   await query(
     `INSERT INTO match_team_stats (
@@ -107,6 +113,7 @@ async function markLineupsConfirmed(matchId) {
 module.exports = {
   upsertMatch,
   getMatchIdByProviderId,
+  hasMatchTeamStats,
   upsertMatchTeamStats,
   upsertMatchWeather,
   markLineupsConfirmed,

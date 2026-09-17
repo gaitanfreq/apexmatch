@@ -80,8 +80,10 @@ module.exports = {
     leagues: () => get('/leagues'),
     teamsByLeague: (leagueId, season) => get('/teams', { league: leagueId, season }),
     fixturesByLeagueSeason: (leagueId, season) => get('/fixtures', { league: leagueId, season }),
-    fixturesByDateRange: (from, to, leagueId) =>
-      get('/fixtures', { from, to, league: leagueId, timezone: 'UTC' }),
+    // `season` es obligatorio cuando se combina con `league` (la API rechaza el
+    // request si falta) — detectado probando este endpoint contra datos reales.
+    fixturesByDateRange: (from, to, leagueId, season) =>
+      get('/fixtures', { from, to, league: leagueId, season, timezone: 'UTC' }),
     fixtureStatistics: (fixtureId) => get('/fixtures/statistics', { fixture: fixtureId }),
     fixtureLineups: (fixtureId) => get('/fixtures/lineups', { fixture: fixtureId }),
     odds: (fixtureId) => get('/odds', { fixture: fixtureId }),

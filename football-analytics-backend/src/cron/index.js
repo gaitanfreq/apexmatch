@@ -42,16 +42,24 @@ function startCronJobs() {
     scheduleGuarded('match-simulator', '*/5 * * * *', simulateTick);
     logger.info('MATCH_DATA_SOURCE=simulator -> usando el simulador automatizado de partidos (no se programaron los jobs de API-Football).');
   } else {
-    // Cuotas: cada 5 minutos, cubriendo partidos en las próximas 72h.
-    scheduleGuarded('odds-poller', '*/5 * * * *', () =>
+    // Cuotas: 1 request de API-Football por partido programado en la ventana —
+    // con 8 ligas puede haber ~20-40 partidos próximos simultáneos, así que
+    // cada 5 min (como en el simulador, donde no cuesta cuota real) fácilmente
+    // superaría los 7,500 req/día del plan Pro (288 corridas/día × ~30
+    // partidos ≈ 8,640). Cada 30 min mantiene esto en un presupuesto seguro
+    // (~48 corridas/día × ~30 ≈ 1,440) con margen para los demás jobs.
+    scheduleGuarded('odds-poller', '*/30 * * * *', () =>
       syncOddsForUpcomingMatches({ withinHours: 72 })
     );
 
-    // Cierre de cuotas (closing line): cada minuto, marca la última cuota antes del kickoff.
+    // Cierre de cuotas (closing line): solo actualiza filas ya guardadas —
+    // no llama a la API, así que corre cada minuto sin costo de cuota.
     scheduleGuarded('closing-line-marker', '* * * * *', markClosingLines);
 
-    // Alineaciones confirmadas: cada 2 minutos, cubriendo partidos que arrancan en <90min.
-    scheduleGuarded('lineups-poller', '*/2 * * * *', () =>
+    // Alineaciones confirmadas: el propio filtro (kickoff en <90min) ya acota
+    // el volumen a muy pocos partidos por corrida, así que cada 5 min alcanza
+    // sin necesitar la granularidad de cada 2 min.
+    scheduleGuarded('lineups-poller', '*/5 * * * *', () =>
       syncLineupsForImminentMatches({ withinMinutes: 90 })
     );
 

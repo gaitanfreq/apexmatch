@@ -31,18 +31,25 @@ services:
         value: "0.25"
       - key: MIN_EDGE
         value: "0.05"
+      - key: MAX_EDGE
+        value: "0.2"
       - key: MIN_PARLAY_CUMULATIVE_PROBABILITY
         value: "0.85"
       - key: MATCH_DATA_SOURCE
         value: simulator
       - key: API_FOOTBALL_BASE_URL
         value: https://v3.football.api-sports.io
+      # sync:false a propósito (no placeholder committeado): así, cuando se
+      # suscriba un plan pago y se pegue la key real en el dashboard de
+      # Render, un blueprint sync posterior no la pisa de vuelta. Para
+      # activar datos reales: setear esta key + MATCH_DATA_SOURCE=api-football
+      # a mano en el dashboard (no en este archivo).
       - key: API_FOOTBALL_KEY
-        value: not_configured_using_simulator
+        sync: false
       - key: TRACKED_LEAGUE_IDS
-        value: "39,140,135,78,61"
+        value: "39,140,135,78,61,2,239,253"
       - key: CURRENT_SEASON_YEAR
-        value: "2025"
+        value: "2026"
       - key: LOG_LEVEL
         value: info
       - key: ADMIN_EMAIL

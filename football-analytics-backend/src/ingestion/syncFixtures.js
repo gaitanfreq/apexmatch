@@ -100,7 +100,10 @@ async function processFixture(fx, leagueId, seasonId) {
   const isFinished = fx.fixture.status.short === 'FT';
   const isUpcoming = new Date(fx.fixture.date) > new Date();
 
-  if (isFinished) {
+  // Este job corre cada hora contra la temporada completa: sin este chequeo,
+  // volvería a pedir estadísticas de TODOS los partidos ya finalizados en cada
+  // corrida, para siempre (cientos de requests/hora en vez de solo los nuevos).
+  if (isFinished && !(await matchRepo.hasMatchTeamStats(matchId))) {
     await syncMatchStatistics(matchId, fx.fixture.id, homeTeamId, awayTeamId);
   } else if (isUpcoming) {
     await attachWeatherForecast(matchId, fx);
@@ -131,7 +134,9 @@ function parseStatisticsBlock(statsArray) {
   };
 
   return {
-    xg: toNumber(find('Expected Goals')),
+    // La API expone este campo como "expected_goals" (snake_case), no "Expected
+    // Goals" — verificado contra una respuesta real de /fixtures/statistics.
+    xg: toNumber(find('expected_goals')),
     xga: null, // se calcula en un paso posterior de agregación (xG concedido = xG del rival)
     possessionPct: toNumber(find('Ball Possession')),
     dangerousAttacks: toNumber(find('Dangerous Attacks')),
